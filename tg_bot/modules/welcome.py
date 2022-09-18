@@ -30,13 +30,10 @@ ENUM_FUNC_MAP = {
 }
 
 
-
-
 # do not async
 def send(update, message, keyboard, backup_message):
-    msg = None
     try:
-        msg = update.effective_message.reply_text(message, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard, api_kwargs={"allow_sending_without_reply": True})
+        msg = update.effective_message.reply_text(message, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
     except IndexError:
         msg = update.effective_message.reply_text(markdown_parser(backup_message +
                                                                   "\nNote: the current message was "
@@ -60,7 +57,7 @@ def send(update, message, keyboard, backup_message):
                                                                       "\nNote: the current message has buttons which "
                                                                       "use url protocols that are unsupported by "
                                                                       "telegram. Please update."),
-                                                      parse_mode=ParseMode.MARKDOWN)                                       
+                                                      parse_mode=ParseMode.MARKDOWN)
         elif excp.message == "Wrong url host":
             msg = update.effective_message.reply_text(markdown_parser(backup_message +
                                                                       "\nNote: the current message has some bad urls. "
@@ -68,12 +65,7 @@ def send(update, message, keyboard, backup_message):
                                                       parse_mode=ParseMode.MARKDOWN)
             LOGGER.warning(message)
             LOGGER.warning(keyboard)
-            LOGGER.exception("Could not parse! got invalid url host errors")            
-        elif excp.message == "Replied message not found":
-            LOGGER.warning("Original message deleted")            
-        elif excp.message == "Have no rights to send a message":
-            LOGGER.warning("Muted in below chat")
-            print(update.effective_message.chat.id)
+            LOGGER.exception("Could not parse! got invalid url host errors")
         else:
             msg = update.effective_message.reply_text(markdown_parser(backup_message +
                                                                       "\nNote: An error occured when sending the "
@@ -169,10 +161,6 @@ def new_member(bot: Bot, update: Update):
                         username = mention
 
                     valid_format = escape_invalid_curly_brackets(cust_welcome, VALID_WELCOME_FORMATTERS)
-
-                    if not valid_format:
-                        return
-
                     res = valid_format.format(first=escape_markdown(first_name),
                                               last=escape_markdown(new_mem.last_name or first_name),
                                               fullname=escape_markdown(fullname), username=username, mention=mention,
@@ -524,7 +512,7 @@ __help__ = """
  - /resetwelcome: reset to the default welcome message.
  - /resetgoodbye: reset to the default goodbye message.
  - /cleanwelcome <on/off>: On new member, try to delete the previous welcome message to avoid spamming the chat.
- - /rmjoin <on/off>: when someone joins, try to delete the *user* joined the group message.
+ - /clearjoin <on/off>: when someone joins, try to delete the *user* joined the group message.
  - /welcomehelp: view more formatting information for custom welcome/goodbye messages.
 
 """.format(WELC_HELP_TXT)
@@ -540,7 +528,7 @@ SET_GOODBYE = CommandHandler("setgoodbye", set_goodbye, filters=Filters.group)
 RESET_WELCOME = CommandHandler("resetwelcome", reset_welcome, filters=Filters.group)
 RESET_GOODBYE = CommandHandler("resetgoodbye", reset_goodbye, filters=Filters.group)
 CLEAN_WELCOME = CommandHandler("cleanwelcome", clean_welcome, pass_args=True, filters=Filters.group)
-DEL_JOINED = CommandHandler("rmjoin", del_joined, pass_args=True, filters=Filters.group)
+DEL_JOINED = CommandHandler("clearjoin", del_joined, pass_args=True, filters=Filters.group)
 WELCOME_HELP = CommandHandler("welcomehelp", welcome_help)
 
 
