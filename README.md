@@ -4,11 +4,7 @@
 <center><img src="https://telegra.ph/file/6374be06fca3f8e59e6a2.jpg"></center>
 <br>
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/hmabdulkuddusrahul1/Rose-Bot)<br>
-There is also a [tutorial video](https://youtu.be/wKL90i3cjPw) if you want any help on creating heroku clone.
-[![telegram badge](https://img.shields.io/badge/Support-Group-30302f?style=flat&logo=telegram)](https://telegram.dog/keralabots)
-[![telegram badge](https://img.shields.io/badge/Update-Channel-30302f?style=flat&logo=telegram)](https://telegram.dog/kochuUpdates)
-
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/hmabdulkuddusrahul1/RoseBot)<br>
 
 
 ## Starting the bot.
