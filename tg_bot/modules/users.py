@@ -13,7 +13,6 @@ from tg_bot import dispatcher, OWNER_ID, LOGGER
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
 USERS_GROUP = 4
-CHAT_GROUP = 10
 
 
 def get_user_id(username):
@@ -60,29 +59,10 @@ def broadcast(bot: Bot, update: Update):
                 sleep(0.1)
             except TelegramError:
                 failed += 1
-                LOGGER.warning("Couldn't send broadcast to %s, group name %s", str(chat.chat_id), str(chat.chat_name))                
+                LOGGER.warning("Couldn't send broadcast to %s, group name %s", str(chat.chat_id), str(chat.chat_name))
+
         update.effective_message.reply_text("Broadcast complete. {} groups failed to receive the message, probably "
                                             "due to being kicked.".format(failed))
-
-
-@run_async
-def userbroadcast(bot: Bot, update: Update):
-    to_send = update.effective_message.text.split(None, 1)
-    if len(to_send) >= 2:
-        users = sql.get_all_users() or []
-        failed = 0
-        success = 0
-        for user in users:
-            try:
-                bot.sendMessage(int(user.user_id), to_send[1])
-                success += 1
-                LOGGER.warning("Sent broadcast to %s, username %s, Count: %s", str(user.user_id), str(user.username), str(success))
-                sleep(0.5)
-            except TelegramError:
-                failed += 1
-                # LOGGER.warning("Couldn't send broadcast to %s, username %s", str(user.user_id), str(user.username))
-        update.effective_message.reply_text("Broadcast complete.\n{} users failed\n{} users received".format(failed, success))
-
 
 
 @run_async
@@ -118,25 +98,16 @@ def chats(bot: Bot, update: Update):
         update.effective_message.reply_document(document=output, filename="chatlist.txt",
                                                 caption="Here is the list of chats in my database.")
 
-@run_async
-def chat_checker(bot: Bot, update: Update):
-  if update.effective_message.chat.get_member(bot.id).can_send_messages == False:
-    bot.leaveChat(update.effective_message.chat.id)
-
 
 def __user_info__(user_id):
     if user_id == dispatcher.bot.id:
         return """I've seen them in... Wow. Are they stalking me? They're in all the same places I am... oh. It's me."""
     num_chats = sql.get_user_num_chats(user_id)
-    return """<code>{}</code> ചാറ്റുകളിൽ ഇയാളെ ഞാൻ കണ്ടിട്ടുണ്ട്..""".format(num_chats)
+    return """I've seen them in <code>{}</code> chats in total.""".format(num_chats)
 
 
 def __stats__():
     return "{} users, across {} chats".format(sql.num_users(), sql.num_chats())
-
-
-def __gdpr__(user_id):
-    sql.del_user(user_id)
 
 
 def __migrate__(old_chat_id, new_chat_id):
@@ -149,12 +120,8 @@ __mod_name__ = "Users"
 
 BROADCAST_HANDLER = CommandHandler("broadcast", broadcast, filters=Filters.user(OWNER_ID))
 USER_HANDLER = MessageHandler(Filters.all & Filters.group, log_user)
-USER_BROADCAST_HANDLER = CommandHandler("userbroadcast", userbroadcast, filters=Filters.user(OWNER_ID))
 CHATLIST_HANDLER = CommandHandler("chatlist", chats, filters=CustomFilters.sudo_filter)
-CHAT_CHECKER_HANDLER = MessageHandler(Filters.all & Filters.group, chat_checker)
 
 dispatcher.add_handler(USER_HANDLER, USERS_GROUP)
 dispatcher.add_handler(BROADCAST_HANDLER)
-dispatcher.add_handler(USER_BROADCAST_HANDLER)
 dispatcher.add_handler(CHATLIST_HANDLER)
-dispatcher.add_handler(CHAT_CHECKER_HANDLER, CHAT_GROUP)
